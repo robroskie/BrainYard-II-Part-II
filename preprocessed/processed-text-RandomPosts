@@ -1,0 +1,24 @@
+pthe codeidcode is given by the database it is the primary key and the codecreatedatcode and codeupdatedatcode are items that are noneditable so these will not show in the form either
+p
+pthis thus means that coderolecode would be the only field that can be used but you specified this as a hrefhttps
+docs
+djangoproject
+comendevrefmodelsfieldseditable relnofollow noreferrerstrongcodeeditablefalsecodestrong djangodoca hence it will emnotem show up to createedit a coderolecode object
+p
+pyou should remove the codeeditablefalsecode part
+p
+precodeclass rolecore
+                                 no editable  false downarrow
+    role  models
+charfieldmaxlength uniquetrue
+    def saveself args kwargs
+        self
+role  self
+role
+lower
+        superrole self
+saveargs kwargs
+    def strself
+        return self
+role
+capitalizecodepre
