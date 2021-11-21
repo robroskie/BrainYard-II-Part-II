@@ -5,6 +5,7 @@ import time
 import pyodbc 
 import process as p
 
+
 app = Flask(__name__)
 
 
@@ -18,7 +19,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return render_template("index.html")
+      return render_template('index.html')
 
 
 @app.route('/brain')
@@ -29,9 +30,15 @@ def brain():
 def result():
     print(request.data)
     print(request.form)
-    p.csim(request.form)
+    print(type(request.form))
 
-    return render_template("result.html")
+    user_input = request.form.to_dict()['user-input']
+    print(user_input)
+    print(type(user_input))
+
+    user_input_tokenized, list_of_keywords = p.getTopics(user_input)
+    print(user_input_tokenized)
+    return render_template("result.html", value = user_input_tokenized, keywords = list_of_keywords)
 
 
 
