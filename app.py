@@ -28,17 +28,18 @@ def brain():
 
 @app.route('/result', methods = ['POST'])
 def result():
-    print(request.data)
-    print(request.form)
-    print(type(request.form))
+    # print(request.data)
+    # print(request.form)
+    # print(type(request.form))
 
     user_input = request.form.to_dict()['user-input']
-    print(user_input)
+    # print(user_input)
     print(type(user_input))
+    print('user_input is {}'.format(user_input))
 
-    user_input_tokenized, list_of_keywords = p.getTopics(user_input)
-    print(user_input_tokenized)
-    return render_template("result.html", value = user_input_tokenized, keywords = list_of_keywords)
+    rs, rw = p.getTopics(user_input)
+    # print(user_input_tokenized)
+    return render_template("result.html", input = user_input, value1 = rs, value2 = rw)
 
 
 

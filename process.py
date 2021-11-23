@@ -26,8 +26,8 @@ def loadModels():
 
 
     topics = loaded_model.print_topics(num_words=2)
-    for topic in topics:
-     print(topic)
+    # for topic in topics:
+    #  print(topic)
 
     file_to_read = open("dictionary.gensim", "rb")
 
@@ -35,55 +35,69 @@ def loadModels():
 
 # key_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
 
-    list_of_keywords = defaultdict(list)
-
+    # list_of_keywords = defaultdict(list)
+    list_of_keywords = [None] * 25
+    word_pairs = []
     word_pairs_cleaned = []
-
+    # print('length of list')
+    # print(len(list_of_keywords))
 #Manually decide topic(s) for each of the word pairs identified using the LDA model
     for topic in topics:
-        str = topic[1]
+        # print('topic is {}'.format(topic))
+        # str = topic[1]
+        # print(type(topic))
+        word_pairs.append(list(topic))
     # str = str.replace('+', ', ')
 
+    # print(word_pairs)
 
+    word_pairs_sorted = sorted(word_pairs, key = lambda x: x[0])
 
-
+    # print(word_pairs_sorted)
 
     regex = re.compile('[^a-zA-Z ]')
     #str = ''.join([i for i in topic[1] if not i.isdigit()])
 
-    str = regex.sub('', topic[1])
-    str = str.replace('  ', ', ')
+    for element in word_pairs_sorted:
+        # print('element is.{}'.format(element))
+        word_pairs = regex.sub('', element[1])
+        word_pairs = word_pairs.replace('  ', ', ')
 
-    word_pairs_cleaned.append(str)
+        word_pairs_cleaned.append([element[0], word_pairs])
 
-    for topic in word_pairs_cleaned:
-        print('next topic')
-        print(topic)
+    # for topic in word_pairs_cleaned:
+        # print('next topic')
+        # print(topic)
 
-    list_of_keywords[12].append([word_pairs_cleaned[0], 'Web development'])
-    list_of_keywords[8].append([word_pairs_cleaned[1], 'Web development'])
-    list_of_keywords[17].append([word_pairs_cleaned[2], 'Types of images'])
-    list_of_keywords[16].append([word_pairs_cleaned[3], 'Element and window sizing'])
-    list_of_keywords[10].append([word_pairs_cleaned[4], 'Models'])
-    list_of_keywords[22].append([word_pairs_cleaned[5], 'System task management'])
-    list_of_keywords[23].append([word_pairs_cleaned[6], 'HTML elements'])
-    list_of_keywords[15].append([word_pairs_cleaned[7], 'Files'])
-    list_of_keywords[14].append([word_pairs_cleaned[8], 'User requests and authentication'])
-    list_of_keywords[7].append([word_pairs_cleaned[9], 'Server testing'])
-    list_of_keywords[24].append([word_pairs_cleaned[10], 'Tags'])
-    list_of_keywords[19].append([word_pairs_cleaned[11], 'Variable names and types'])
-    list_of_keywords[18].append([word_pairs_cleaned[12], 'PHP and related libraries'])
-    list_of_keywords[4].append([word_pairs_cleaned[13], 'JAVA developement'])
-    list_of_keywords[11].append([word_pairs_cleaned[14], 'Variable names and types'])
-    list_of_keywords[21].append([word_pairs_cleaned[15], 'Static and dynamic binding'])
-    list_of_keywords[9].append([word_pairs_cleaned[16], 'Android view class'])
-    list_of_keywords[6].append([word_pairs_cleaned[17], 'HTML elements'])
-    list_of_keywords[13].append([word_pairs_cleaned[18], 'Verson and builds'])
-    list_of_keywords[1].append([word_pairs_cleaned[19], 'Events'])
+    list_of_keywords[0] = ''
+    list_of_keywords[2] = ''
+    list_of_keywords[3] = ''
+    list_of_keywords[5] = ''
+
+    list_of_keywords[1] = [word_pairs_cleaned[0], 'CSS Styling']
+    list_of_keywords[4] = [word_pairs_cleaned[1], 'Server testing']
+    list_of_keywords[6] = [word_pairs_cleaned[2], 'Arrays and lists']
+    list_of_keywords[7] = [word_pairs_cleaned[3], 'Functions, methods and variables']
+    list_of_keywords[8] = [word_pairs_cleaned[4], 'Files']
+    list_of_keywords[9] = [word_pairs_cleaned[5], 'System task management']
+    list_of_keywords[10] = [word_pairs_cleaned[6], 'JAVA developement']
+    list_of_keywords[11] = [word_pairs_cleaned[7], 'Android view class']
+    list_of_keywords[12] = [word_pairs_cleaned[8], 'Accessing and declaring variables']
+    list_of_keywords[13] = [word_pairs_cleaned[9], 'Database queries']
+    list_of_keywords[14] = [word_pairs_cleaned[10], 'Static and dynamic binding']
+    list_of_keywords[15] = [word_pairs_cleaned[11], 'Verson and builds']
+    list_of_keywords[16] = [word_pairs_cleaned[12], 'HTML elements']
+    list_of_keywords[17] = [word_pairs_cleaned[13], 'Types of images']
+    list_of_keywords[18] = [word_pairs_cleaned[14], 'Protocol/network stacks']
+    list_of_keywords[19] = [word_pairs_cleaned[15], 'HTTP and TCP/IP']
+    list_of_keywords[21] = [word_pairs_cleaned[16], 'Software models and development life cycle']
+    list_of_keywords[22] = [word_pairs_cleaned[17], 'Primitive and reference data types']
+    list_of_keywords[23] = [word_pairs_cleaned[18], 'Application tags and metadata']
+    list_of_keywords[24] = [word_pairs_cleaned[19], 'HTML elements']
 
 
-    for kw in list_of_keywords:
-        print(kw)
+    # for kw in list_of_keywords:
+        # print(kw)
 
     return list_of_keywords, loaded_model, dictionary
 
@@ -171,27 +185,30 @@ def getTopics(user_input):
 
     matches.sort(key = lambda x: x[1], reverse = True)
  
-    print('matches')
+    # print('matches')
     print(matches)
-    # print(type(matches))
+    print(type(matches))
 
-    to_return = []
-
+    to_return_strong = []
+    to_return_weak = []
 
 
     for match in matches:
-        print(type(match))
-        print(match[0])
-        if(match[1] > 0.4):
-            print('******')
-            print(match[0])
-            print(list_of_keywords[match[0]])
-            print('list_of_keywords[match[0]][1]')
-            list_of_keywords = list(list_of_keywords[match[0]])
-            to_return.append(list_of_keywords[match[0]])
+        temp = list(match)
+
+        # print(type(match))
+        print('temp is {}'.format(temp))
+        if(match[1] > 0.3):
+            to_return_strong.append(list_of_keywords[match[0]][1])
+
+        elif(match[1] < 0.3 and match[1] > 0.1):
+            to_return_weak.append(list_of_keywords[match[0]][1])
+        
+    print('Stringly related to')
+    print(to_return_strong)
+    print('Weakly related to')
+    print(to_return_weak)
 
 
 
-
-
-    return to_return, list_of_keywords
+    return to_return_strong, to_return_weak
