@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-    <h3>{{input}}</h3>
-    <h3>{{value1}}</h3>
-    <h3>{{value2}}</h3>
+    <h3>Your Question:</h3>
+    <p>{{input}}</p>
+
+    <h3>Identified topics:</h3>
+    <h6>Check if relevant</h6>
+
+
+    {% for result in value1 %}
+    <tr>
+        <input type="checkbox" id="input1" name="input1" value="input1">
+        <label for="input1">{{result}}</label><br>
+    </tr>
+    {% endfor %}
+
 </html>

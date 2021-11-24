@@ -37,9 +37,9 @@ def result():
     print(type(user_input))
     print('user_input is {}'.format(user_input))
 
-    rs, rw = p.getTopics(user_input)
+    rs = p.getTopics(user_input)
     # print(user_input_tokenized)
-    return render_template("result.html", input = user_input, value1 = rs, value2 = rw)
+    return render_template("result.html", input = user_input, value1 = rs)
 
 
 

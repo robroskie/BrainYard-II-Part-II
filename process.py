@@ -6,16 +6,15 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 
 from nltk.stem import PorterStemmer
-from nltk.tokenize import sent_tokenize, word_tokenize
+
 from nltk.corpus import wordnet as wn
-import string
 
 import gensim
-from gensim import corpora
+# from gensim import corpora
 
 import pickle
 
-from collections import defaultdict
+# from collections import defaultdict
 
 
 
@@ -198,11 +197,11 @@ def getTopics(user_input):
 
         # print(type(match))
         print('temp is {}'.format(temp))
-        if(match[1] > 0.3):
+        if(match[1] > 0.1):
             to_return_strong.append(list_of_keywords[match[0]][1])
 
-        elif(match[1] < 0.3 and match[1] > 0.1):
-            to_return_weak.append(list_of_keywords[match[0]][1])
+        # elif(match[1] < 0.3 and match[1] > 0.1):
+        #     to_return_weak.append(list_of_keywords[match[0]][1])
         
     print('Stringly related to')
     print(to_return_strong)
@@ -211,4 +210,4 @@ def getTopics(user_input):
 
 
 
-    return to_return_strong, to_return_weak
+    return to_return_strong
