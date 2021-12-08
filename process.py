@@ -1,72 +1,39 @@
 import re
 import gensim
+import pickle
 import nltk
 from nltk.tokenize import word_tokenize
-
 from nltk.corpus import stopwords
-
 from nltk.stem import PorterStemmer
-
 from nltk.corpus import wordnet as wn
-
-import gensim
-# from gensim import corpora
-
-import pickle
-
-# from collections import defaultdict
-
+import pandas as pd
 
 
 def loadModels():
 
     loaded_model = gensim.models.ldamodel.LdaModel.load('models/lda_model.model')
-
-
-
     topics = loaded_model.print_topics(num_words=2)
-    # for topic in topics:
-    #  print(topic)
-
     file_to_read = open("dictionary.gensim", "rb")
-
     dictionary = pickle.load(file_to_read)
 
-# key_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
-
-    # list_of_keywords = defaultdict(list)
     list_of_keywords = [None] * 25
     word_pairs = []
     word_pairs_cleaned = []
-    # print('length of list')
-    # print(len(list_of_keywords))
-#Manually decide topic(s) for each of the word pairs identified using the LDA model
-    for topic in topics:
-        # print('topic is {}'.format(topic))
-        # str = topic[1]
-        # print(type(topic))
-        word_pairs.append(list(topic))
-    # str = str.replace('+', ', ')
 
-    # print(word_pairs)
+    #Manually decide topic(s) for each of the word pairs identified using the LDA model
+    for topic in topics:
+        word_pairs.append(list(topic))
 
     word_pairs_sorted = sorted(word_pairs, key = lambda x: x[0])
 
-    # print(word_pairs_sorted)
-
     regex = re.compile('[^a-zA-Z ]')
-    #str = ''.join([i for i in topic[1] if not i.isdigit()])
 
     for element in word_pairs_sorted:
-        # print('element is.{}'.format(element))
         word_pairs = regex.sub('', element[1])
         word_pairs = word_pairs.replace('  ', ', ')
-
         word_pairs_cleaned.append([element[0], word_pairs])
+        print(word_pairs)
 
-    # for topic in word_pairs_cleaned:
-        # print('next topic')
-        # print(topic)
 
     list_of_keywords[0] = ''
     list_of_keywords[2] = ''
@@ -94,22 +61,14 @@ def loadModels():
     list_of_keywords[23] = [word_pairs_cleaned[18], 'Application tags and metadata']
     list_of_keywords[24] = [word_pairs_cleaned[19], 'HTML elements']
 
-
-    # for kw in list_of_keywords:
-        # print(kw)
-
     return list_of_keywords, loaded_model, dictionary
 
-def prepare_text_for_lda(text):
+def prepare_LDA(text):
     tokens = word_tokenize(text)
-    # tokens = [token for token in tokens if len(token) > 4]
-    # tokens = [token for token in tokens if token not in en_stop]
-    # tokens = [get_lemma(token) for token in tokens]
     return tokens
 
 def removeFirstLastThree(text):
     text = text[3:]
-    # text = text[:3]
     text = text[:len(text)-3]
     return text
 
@@ -139,11 +98,6 @@ def applyPStemmer(text):
     return stemmed_words
 
 
-
-
-# nltk.download('wordnet')
-
-
 def get_lemma(text):
     words = []
     for word in text:
@@ -167,7 +121,7 @@ def get_lemma2(word):
 
 def getTopics(user_input):
     list_of_keywords, loaded_model, dictionary = loadModels()
-    tokens = prepare_text_for_lda(user_input)
+    tokens = prepare_LDA(user_input)
     tokens = removeFirstLastThree(tokens)
     tokens = toLowerCase(tokens)
     tokens = removeStopWords(tokens)
@@ -178,36 +132,141 @@ def getTopics(user_input):
 
     matches = loaded_model.get_document_topics(new_doc)
 
-    # print(loaded_model)
-    # print(type(loaded_model.get_document_topics(new_doc)))
-    # print(matches)
+
 
     matches.sort(key = lambda x: x[1], reverse = True)
  
-    # print('matches')
+ 
     print(matches)
     print(type(matches))
 
-    to_return_strong = []
-    to_return_weak = []
+    to_return = []
 
 
     for match in matches:
         temp = list(match)
 
-        # print(type(match))
+  
         print('temp is {}'.format(temp))
         if(match[1] > 0.1):
-            to_return_strong.append(list_of_keywords[match[0]][1])
-
-        # elif(match[1] < 0.3 and match[1] > 0.1):
-        #     to_return_weak.append(list_of_keywords[match[0]][1])
-        
-    print('Stringly related to')
-    print(to_return_strong)
-    print('Weakly related to')
-    print(to_return_weak)
+            to_return.append(list_of_keywords[match[0]][1])
 
 
 
-    return to_return_strong
+    
+
+    return to_return
+
+
+
+ 
+def removeFirstLastThree(text):
+    text = text[3:]
+    text = text[:len(text)-3]
+    return text
+
+
+def applyPStemmer_df(text):
+
+    ps = PorterStemmer()
+
+    stemmed_words=[]
+
+    for w in text:
+        stemmed_words.append(ps.stem(w))
+
+    return stemmed_words
+
+
+
+
+
+def prepare_LDA_df(text):
+
+    return word_tokenize(text)
+
+
+def removeStopWords(text):
+    stop_words=set(stopwords.words("english"))
+
+    cleaned = []
+
+    for word in text:
+        if word not in stop_words:
+            cleaned.append(word)
+    return text
+
+
+def get_lemma_df(text):
+    words = []
+    for word in text:
+        lemma = wn.morphy(word)
+        if (len(word) <= 2 or len(word) >= 15 or word == 'code' or word.isnumeric() or word == 'gt' or word == 'lt' or word =='quot' or word == 'pre' or word == 'amp'):
+            continue 
+        elif lemma is None or word == lemma:
+            words.append(word)
+        else:
+            words.append(lemma)
+    return words
+from nltk.stem.wordnet import WordNetLemmatizer
+
+def get_lemma2(word):
+    return WordNetLemmatizer().lemmatize(word)
+
+
+
+def prepareText(df):
+
+
+    df['Body'] = df['Body'].astype(str)
+    df['Body_processed'] = df.apply(lambda x: removeFirstLastThree(x['Body']), axis=1)
+
+    df['Body_processed'] = df.apply(lambda x: prepare_LDA_df(x['Body_processed']), axis=1)
+
+    df['Body_processed'] = df.apply(lambda x: applyPStemmer_df(x['Body_processed']), axis=1)
+
+    df['Body_processed'] = df.apply(lambda x: removeStopWords(x['Body_processed']), axis=1)
+
+    df['Body_processed'] = df.apply(lambda x: get_lemma_df(x['Body_processed']), axis=1)
+
+
+    return df
+
+
+df = pd.read_csv('randomPosts.csv', encoding='utf-8')
+
+
+
+
+# Run function
+
+
+
+
+df = prepareText(df)
+
+
+# df.to_csv('Body_processed.csv', encoding='utf-8')
+
+# --------- segment
+
+
+
+print(str(df.Body_processed))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # df['Body_processed'] = df['Body'].apply(lambda x: x[1:-1].split(' '))

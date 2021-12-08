@@ -4,7 +4,7 @@ from flask import request
 import time
 import pyodbc 
 import process as p
-
+import cosinesimilarity as csim
 
 app = Flask(__name__)
 
@@ -28,18 +28,20 @@ def brain():
 
 @app.route('/result', methods = ['POST'])
 def result():
-    # print(request.data)
-    # print(request.form)
-    # print(type(request.form))
 
     user_input = request.form.to_dict()['user-input']
-    # print(user_input)
+
     print(type(user_input))
     print('user_input is {}'.format(user_input))
 
     rs = p.getTopics(user_input)
-    # print(user_input_tokenized)
-    return render_template("result.html", input = user_input, value1 = rs)
+
+    csSim = csim.getCSim(user_input)
+
+    print('csSim')
+    print(csSim)
+
+    return render_template("result.html", input = user_input, value1 = rs, value2 = csSim)
 
 
 
