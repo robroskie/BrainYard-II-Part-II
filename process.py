@@ -1,22 +1,23 @@
 import re
 import gensim
 import pickle
-import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from nltk.corpus import wordnet as wn
 import pandas as pd
+pd.options.mode.chained_assignment = None 
+
+load_gensim_model = gensim.models.ldamodel.LdaModel.load('models/lda_model.model')
+topics = load_gensim_model.print_topics(num_words=2)
+
+file_to_read = open("models/dictionary.gensim", "rb")
+dictionary = pickle.load(file_to_read)
+
+
 
 
 def loadModels():
-
-    loaded_model = gensim.models.ldamodel.LdaModel.load('models/lda_model.model')
-    topics = loaded_model.print_topics(num_words=2)
-    file_to_read = open("dictionary.gensim", "rb")
-    dictionary = pickle.load(file_to_read)
-
-    list_of_keywords = [None] * 25
     word_pairs = []
     word_pairs_cleaned = []
 
@@ -34,6 +35,10 @@ def loadModels():
         word_pairs_cleaned.append([element[0], word_pairs])
         print(word_pairs)
 
+    return word_pairs_cleaned
+
+def getKeywords(word_pairs_cleaned):
+    list_of_keywords = [None] * 25
 
     list_of_keywords[0] = ''
     list_of_keywords[2] = ''
@@ -61,7 +66,7 @@ def loadModels():
     list_of_keywords[23] = [word_pairs_cleaned[18], 'Application tags and metadata']
     list_of_keywords[24] = [word_pairs_cleaned[19], 'HTML elements']
 
-    return list_of_keywords, loaded_model, dictionary
+    return list_of_keywords
 
 def prepare_LDA(text):
     tokens = word_tokenize(text)
@@ -118,9 +123,12 @@ def get_lemma2(word):
 
 
 
+list_of_keywords = []
 
 def getTopics(user_input):
-    list_of_keywords, loaded_model, dictionary = loadModels()
+    word_pairs_cleaned = loadModels()
+    
+
     tokens = prepare_LDA(user_input)
     tokens = removeFirstLastThree(tokens)
     tokens = toLowerCase(tokens)
@@ -130,7 +138,7 @@ def getTopics(user_input):
 
     new_doc = dictionary.doc2bow(tokens)
 
-    matches = loaded_model.get_document_topics(new_doc)
+    matches = load_gensim_model.get_document_topics(new_doc)
 
 
 
@@ -156,6 +164,18 @@ def getTopics(user_input):
     
 
     return to_return
+
+
+# print(getTopics('hello'))
+
+ 
+
+
+
+
+
+
+
 
 
 
@@ -243,7 +263,8 @@ df = pd.read_csv('randomPosts.csv', encoding='utf-8')
 
 
 
-df = prepareText(df)
+df = prepareText(df.head(20))
+
 
 
 # df.to_csv('Body_processed.csv', encoding='utf-8')
@@ -252,21 +273,57 @@ df = prepareText(df)
 
 
 
-print(str(df.Body_processed))
+word_pairs_cleaned = loadModels()
+list_of_keywords = getKeywords(word_pairs_cleaned)
+
+
+
+df['Body_processed_topics'] = df.apply(lambda x: dictionary.doc2bow(x['Body_processed']), axis=1)
+
+df['Body_processed_topics'] = df.apply(lambda x: load_gensim_model.get_document_topics(x['Body_processed_topics']), axis=1)
+
+
+print('**********')
+# print(list_of_keywords)
+
+
+def sorterTopThree(nums):
+    print(nums)
+    nums.sort(key = lambda x: x[1], reverse = True)
+    print(nums[:3])
+    return nums[:3]
+    
+
+df['Body_processed_topics_sorted'] = df.apply(lambda x: sorterTopThree(x['Body_processed_topics']), axis=1)
 
 
 
 
+# def getTopicsfromKwrds(keywords):
+#     to_return = []
+#     i = 0
+
+#     for match in keywords:
+ 
+#         temp = list(match)
+        
+     
+#         if(list_of_keywords[temp[0]]):
+#                 if(temp[1] > 0.1):
+#                     to_return.append(list_of_keywords[temp[0]][1])
+#                     print('temp is {}'.format(list_of_keywords[temp[0]][1]))
+
+#         i+=1
+
+#     return to_return
+
+# def counts(row):
 
 
+#     return len(row)
 
 
+# df['Body_processed_topics_words'] = df.apply(lambda x: getTopicsfromKwrds(x['Body_processed_topics']), axis=1)
 
 
-
-
-
-
-
-
-    # df['Body_processed'] = df['Body'].apply(lambda x: x[1:-1].split(' '))
+print(len(df['Body_processed_topics_sorted']))
